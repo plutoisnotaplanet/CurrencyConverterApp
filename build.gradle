@@ -1,0 +1,19 @@
+import com.plutoisnotaplanet.buildsrc.Dependencies
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+    dependencies {
+        classpath Dependencies.Gradle.androidGradlePlugin
+        classpath Dependencies.Kotlin.kotlinGradlePlugin
+        classpath Dependencies.Hilt.gradleHilt
+    }
+}
+
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
