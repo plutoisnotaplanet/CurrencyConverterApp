@@ -2,44 +2,38 @@ package com.plutoisnotaplanet.currencyconverterapp.application.data.repositories
 
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.dao.CurrencyDao
 import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.Api
-import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.ApiException
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.runResulting
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.repository.CurrencyRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class CurrencyRepositoryImpl @Inject constructor(
     private val api: Api,
     private val currencyDao: CurrencyDao
-): CurrencyRepository {
+) : CurrencyRepository {
 
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeCurrencies(): Flow<List<Currency>> {
-        return currencyDao.getAllCurrencies().map { list ->
-            var currencies = list.map { it.toModel() }
+        return currencyDao.getAllCurrenciesFlow().flatMapLatest { list ->
             if (list.isEmpty()) {
-                val response = api.getExchangeRates()
-                val currenciesList = response.currencyRatesResponse.currenciesList
-                currencyDao.save(currenciesList)
-
-                currencies = currenciesList.map { it.toModel() }
-                currencies
+                updateCurrencies()
+                flow { emit(list.map { it.toModel() }) }
             } else {
-                currencies
+                flow { emit(list.map { it.toModel() }) }
             }
         }
     }
 
     override suspend fun changeCurrencyFavoriteState(currency: Currency) {
-        currencyDao.changeFavoriteState(currency.name, !currency.isFavorite)
+        currencyDao.updateFavorState(currency.name, !currency.isFavorite)
     }
 
-    override suspend fun uploadCurrencies() {
-        val response = api.getExchangeRates()
-        currencyDao.save(response.currencyRatesResponse.currenciesList)
+    override suspend fun updateCurrencies() {
+        val responseList =
+            api.getExchangeRates().currencyRatesResponse.currenciesList
+
+        currencyDao.save(responseList)
     }
-
-
 }

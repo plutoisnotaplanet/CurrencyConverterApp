@@ -16,7 +16,7 @@ data class CurrencyEntity(
     @ColumnInfo(name = "column_currencyCode")
     val currencyCode: String,
     @ColumnInfo(name = "column_exchangeRate")
-    val exchangeRate: Double
+    var exchangeRate: Double
 ) {
 
     @ColumnInfo(name = "column_isFavorite")

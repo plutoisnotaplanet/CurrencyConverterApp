@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.plutoisnotaplanet.currencyconverterapp.R
+import com.plutoisnotaplanet.currencyconverterapp.ui.components.modifier.pushedAnimation
 
 @Preview(showBackground = true)
 @Composable
@@ -89,10 +90,10 @@ fun DefaultClickableText(
     onClick: (Int) -> Unit = {},
 ) {
     ClickableText(
-        modifier = modifier,
-        onClick = onClick,
+        modifier = modifier.pushedAnimation { onClick(0) },
+        onClick = { },
         text = buildAnnotatedString {
-            withStyle(style = SpanStyle(color = colorResource(id = R.color.colorAccent))) {
+            withStyle(style = SpanStyle(color = MaterialTheme.colors.secondary)) {
                 append(title)
             }
         }

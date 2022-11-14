@@ -15,4 +15,6 @@ sealed class CurrencyScreenAction {
     data class FilterCurrenciesByQuery(val listType: CurrencyListType, val query: String) : CurrencyScreenAction()
 
     data class ObserveCurrenciesByListType(val listType: CurrencyListType) : CurrencyScreenAction()
+
+    data class UpdateDataRemote(val listType: CurrencyListType): CurrencyScreenAction()
 }

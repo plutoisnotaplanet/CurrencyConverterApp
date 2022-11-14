@@ -7,7 +7,7 @@ interface CurrencyRepository {
 
     fun observeCurrencies(): Flow<List<Currency>>
 
-    suspend fun uploadCurrencies()
+    suspend fun updateCurrencies()
 
     suspend fun changeCurrencyFavoriteState(currency: Currency)
 }

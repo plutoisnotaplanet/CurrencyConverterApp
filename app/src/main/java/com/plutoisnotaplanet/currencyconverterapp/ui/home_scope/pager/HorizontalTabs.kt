@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.TabRowDefaults
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -17,7 +16,6 @@ import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import com.plutoisnotaplanet.currencyconverterapp.R
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.DefaultTitle
-import com.plutoisnotaplanet.currencyconverterapp.ui.theme.light_accent_color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -39,13 +37,14 @@ fun HorizontalTabs(
         selectedTabIndex = pagerState.currentPage,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
-                modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
+                modifier = Modifier
+                    .pagerTabIndicatorOffset(pagerState, tabPositions)
             )
         }
     ) {
         items.forEachIndexed { index, item ->
             Tab(
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = Modifier.padding(bottom = 16.dp, top = 12.dp),
                 selected = pagerState.currentPage == index,
                 onClick = {
                     scope.launch {

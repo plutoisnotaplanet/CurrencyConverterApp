@@ -3,14 +3,15 @@ package com.plutoisnotaplanet.currencyconverterapp.ui.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MenuOpen
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
@@ -25,8 +26,6 @@ import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Curre
 import com.plutoisnotaplanet.currencyconverterapp.application.utils.ResourceUtil
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.modifier.pushedAnimation
 import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.floating_button.FloatingButtonState
-import com.plutoisnotaplanet.currencyconverterapp.ui.theme.light_secondary
-import timber.log.Timber
 
 
 @Preview
@@ -39,12 +38,12 @@ fun IconifiedActionButton(
     FloatingActionButton(
         modifier = modifier
             .pushedAnimation { onActionClick() },
-        backgroundColor = light_secondary,
+        backgroundColor = MaterialTheme.colors.secondary,
         onClick = { },
     ) {
         Icon(
             imageVector = imageVector,
-            tint = Color.White,
+            tint = MaterialTheme.colors.onSecondary,
             contentDescription = null,
             modifier = Modifier
                 .size(24.dp)
@@ -62,7 +61,7 @@ fun CurrencyFlagActionButton(
 ) {
     FloatingActionButton(
         modifier = Modifier.pushedAnimation { onScrollToSelectedCurrency() },
-        backgroundColor = light_secondary,
+        backgroundColor = MaterialTheme.colors.secondary,
         onClick = { }
     ) {
         Row(
@@ -117,19 +116,14 @@ fun MultifyActionButton(
         }
     }.value
 
-    var buttonModifier = Modifier
-        .padding(start = 12.dp)
-        .fillMaxWidth(animateWidth)
-
-    if (!state.isSearchView) {
-        buttonModifier =
-            buttonModifier.pushedAnimation{ onChangeState(nextState) }
-    }
-
     FloatingActionButton(
-        modifier = buttonModifier,
+        modifier = Modifier
+            .padding(start = 12.dp)
+            .fillMaxWidth(animateWidth)
+            .pushedAnimation(enabled = !state.isSearchView) { onChangeState(nextState) }
+        ,
         onClick = { },
-        backgroundColor = light_secondary
+        backgroundColor = MaterialTheme.colors.secondary
     ) {
         AnimatedContent(targetState = state) { animatedState ->
             when (animatedState) {

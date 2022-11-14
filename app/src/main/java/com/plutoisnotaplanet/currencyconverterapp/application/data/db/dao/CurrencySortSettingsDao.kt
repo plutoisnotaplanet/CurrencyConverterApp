@@ -20,6 +20,8 @@ interface CurrencySortSettingsDao {
     @Query("SELECT EXISTS(SELECT * FROM table_currency_sort_settings WHERE column_sortSettingsId =:id)")
     suspend fun hasSortSettings(id: Int): Boolean
 
+    @Query("UPDATE table_currency_sort_settings SET column_selectedCurrencyCode = :currencyCode WHERE column_sortSettingsId = :id")
+    suspend fun updateSelectedCountryById(id: Int, currencyCode: String)
 
     @Query("SELECT * FROM table_currency_sort_settings WHERE column_sortSettingsId = :id")
     fun getSortSettingsFlow(id: Int): Flow<CurrencySortSettingsEntity>

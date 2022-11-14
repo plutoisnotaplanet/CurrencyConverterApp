@@ -5,8 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,17 +37,29 @@ fun CurrencyListItem(
     currentListType: CurrencyListType = CurrencyListType.POPULAR,
     onAction: (CurrencyScreenAction) -> Unit = {}
 ) {
-    val heartButtonState = remember {
-        mutableStateOf(HeartButtonState.IDLE)
+    val heartButtonState = remember(item.isFavorite) {
+        mutableStateOf(
+            if (item.isFavorite)
+                HeartButtonState.ACTIVE
+            else
+                HeartButtonState.IDLE
+        )
     }
 
-    heartButtonState.value = if (item.isFavorite) HeartButtonState.ACTIVE else HeartButtonState.IDLE
+    val commonTextColor = if (item.name == selectedCurrencyName)
+        MaterialTheme.colors.onSecondary
+    else
+        MaterialTheme.colors.onSurface
 
-    val textColor = if (item.name == selectedCurrencyName) Color.White else Color.Black
+    val backgroundColor = if (item.name == selectedCurrencyName)
+        MaterialTheme.colors.primary
+    else
+        MaterialTheme.colors.surface
 
-    val subTitleTextColor = if (item.name == selectedCurrencyName) Color.White.copy(alpha = 0.6f) else Color.Black.copy(alpha = 0.6f)
-
-    val backgroundColor = if (item.name == selectedCurrencyName) light_primary else Color.White
+    val subTitleTextColor = if (item.name == selectedCurrencyName)
+        MaterialTheme.colors.surface.copy(0.6f)
+    else
+        MaterialTheme.colors.primary.copy(0.6f)
 
     Surface(
         modifier = modifier
@@ -85,7 +99,7 @@ fun CurrencyListItem(
                 DefaultTitle(
                     value = item.name,
                     textAlign = TextAlign.Start,
-                    textColor = textColor,
+                    textColor = commonTextColor,
                     modifier = Modifier
                         .padding(start = 8.dp)
                         .weight(1f, true)
@@ -116,7 +130,7 @@ fun CurrencyListItem(
                     item.rate.toString().take(7),
                     item.name
                 ),
-                valueTextColor = textColor,
+                valueTextColor = commonTextColor,
                 subTitleTextColor = subTitleTextColor,
             )
         }

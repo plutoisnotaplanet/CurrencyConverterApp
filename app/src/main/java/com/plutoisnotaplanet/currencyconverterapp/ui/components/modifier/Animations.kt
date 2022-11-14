@@ -16,6 +16,8 @@ fun Modifier.pushedAnimation(
     onClick: (() -> Unit)? = null,
 ): Modifier = composed {
 
+    if (!enabled) return@composed this
+
     val touched = remember { mutableStateOf(false) }
     val scale = animateFloatAsState(if (touched.value && enabled) 0.95f else 1f)
 

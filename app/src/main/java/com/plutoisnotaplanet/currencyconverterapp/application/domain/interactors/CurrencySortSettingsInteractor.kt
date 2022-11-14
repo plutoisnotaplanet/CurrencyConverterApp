@@ -23,11 +23,7 @@ class CurrencySortSettingsInteractor @Inject constructor(
         currency: Currency
     ): Response<Unit> {
         return runResulting {
-            val currentSettings = currencySortSettingsRepository.getSortSettingsByListType(listType)
-            if (currentSettings.selectedCurrency.name == currency.name) return@runResulting
-
-            val updatedSettings = currentSettings.copy(selectedCurrency = currency)
-            currencySortSettingsRepository.updateSortSettings(listType, updatedSettings)
+            currencySortSettingsRepository.updateSelectedCurrency(listType, currency.name)
         }
     }
 }

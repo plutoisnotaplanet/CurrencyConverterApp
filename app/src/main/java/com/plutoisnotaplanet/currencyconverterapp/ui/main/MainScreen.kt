@@ -1,21 +1,21 @@
 package com.plutoisnotaplanet.currencyconverterapp.ui.main
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
-import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.CurrencyScreenAction
-import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.sort_screen.CurrencySortScreen
+import com.plutoisnotaplanet.currencyconverterapp.ui.common.SnackbarController
+import com.plutoisnotaplanet.currencyconverterapp.ui.common.SnackbarState
 import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.pager.HorizontalPagerScreen
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -24,13 +24,34 @@ fun MainScreen(
 ) {
     val scaffoldState = rememberScaffoldState()
     val pagerState = rememberPagerState()
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = Unit) {
+        val snackbarController = SnackbarController(this)
+
+        viewModel.snackbarFlow.collectLatest { state ->
+            Timber.e("snack $state")
+            when (state) {
+                is SnackbarState.ResMessage -> {
+                    snackbarController.showSnackbar(
+                        scaffoldState = scaffoldState,
+                        message = context.getString(state.message),
+                    )
+                }
+                is SnackbarState.StringMessage -> {
+                    snackbarController.showSnackbar(
+                        scaffoldState = scaffoldState,
+                        message = state.message,
+                    )
+                }
+            }
+        }
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,
-        modifier = Modifier.fillMaxSize(),
-        backgroundColor = Color.White
+        snackbarHost = { SnackbarHost(hostState = scaffoldState.snackbarHostState) },
     ) { paddingValues ->
-
         HorizontalPagerScreen(
             modifier = Modifier.padding(paddingValues),
             viewModel = viewModel,

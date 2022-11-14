@@ -6,11 +6,9 @@ import com.plutoisnotaplanet.currencyconverterapp.application.domain.repository.
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.usecases.CurrencyUseCase
 import com.plutoisnotaplanet.currencyconverterapp.application.utils.CurrencyConversion
 import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.CurrencyScreenUiState
-import com.plutoisnotaplanet.currencyconverterapp.ui.main.MainUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 import java.math.BigDecimal
@@ -24,17 +22,21 @@ class CurrencyInteractor @Inject constructor(
     override suspend fun getSortedCurrenciesByListType(
         listType: CurrencyListType,
         queryText: String
-    ): Flow<MainUiState> {
+    ): Flow<CurrencyScreenUiState> {
         return currencyRepository.observeCurrencies()
             .combine(currencySortSettingsRepository.observeSortSettings()) { currencies, pairOfSettings ->
+
+                Timber.e("emitInteractror")
 
                 val (popularSortSettings, favoriteSortSettings) = pairOfSettings
 
                 val activeSortSettings =
                     if (listType == CurrencyListType.POPULAR) popularSortSettings else favoriteSortSettings
+
                 var resultList = currencies
 
-                if (activeSortSettings.isCountrySelected) {
+                if (activeSortSettings.isCurrencyNotDefault) {
+                    Timber.d("Sorting by ${activeSortSettings.selectedCurrency}")
                     resultList = resultList.map { currency ->
                         Currency(
                             name = currency.name,
@@ -49,73 +51,37 @@ class CurrencyInteractor @Inject constructor(
                 }
 
                 if (activeSortSettings.isSortActive) {
-                    when {
-                        activeSortSettings.isSortByNameActive && activeSortSettings.isSortByRateActive -> {
-                            resultList =
-                                prepareBothActiveSortSettings(resultList, activeSortSettings)
-                        }
-                        activeSortSettings.isSortByNameActive -> {
-                            resultList = when (activeSortSettings.sortByName) {
-                                SortBy.Ascending -> resultList.sortedBy { it.name }
-                                SortBy.Descending -> resultList.sortedByDescending { it.name }
-                                SortBy.None -> resultList
-                            }
-                        }
-                        activeSortSettings.isSortByRateActive -> {
-                            resultList = when (activeSortSettings.sortByRate) {
-                                SortBy.Ascending -> resultList.sortedBy { it.rate }
-                                SortBy.Descending -> resultList.sortedByDescending { it.rate }
-                                SortBy.None -> resultList
-                            }
-                        }
-                    }
+                    resultList = prepareSortedCurrenciesList(resultList, activeSortSettings)
                 }
 
-                var popularList = resultList
-                var favoriteList = resultList.filter { it.isFavorite }
+                if (listType.isFavorite) {
+                    resultList = resultList.filter { it.isFavorite }
+                }
 
                 if (queryText.isNotBlank()) {
-                    when (listType) {
-                        CurrencyListType.POPULAR -> {
-                            popularList =
-                                popularList.filter { it.name.lowercase().contains(queryText, true) }
-                        }
-                        CurrencyListType.FAVORITE -> {
-                            favoriteList = favoriteList.filter {
-                                it.name.lowercase().contains(queryText, true)
-                            }
-                        }
+                    resultList = resultList.filter {
+                        it.name.lowercase().contains(queryText, true)
                     }
                 }
 
-                val popularUiState = CurrencyScreenUiState.Success(
-                    sortSettings = popularSortSettings,
-                    currenciesList = popularList
-                ).takeIf { popularList.isNotEmpty() } ?: CurrencyScreenUiState.Error("No currencies found")
-
-                val favoriteUiState = CurrencyScreenUiState.Success(
-                    sortSettings = favoriteSortSettings,
-                    currenciesList = favoriteList
-                ).takeIf { favoriteList.isNotEmpty() } ?: CurrencyScreenUiState.Error("Favorites is not found")
-
-                MainUiState(
-                    popularUiState = popularUiState,
-                    favoriteUiState = favoriteUiState
-                )
-            }.flowOn(Dispatchers.IO)
-            .distinctUntilChanged { old, new ->
-                if (listType == CurrencyListType.POPULAR) {
-                    old.popularUiState == new.popularUiState
+                if (listType.isPopular) {
+                    CurrencyScreenUiState.Success(
+                        sortSettings = popularSortSettings,
+                        currenciesList = resultList
+                    ).takeIf { resultList.isNotEmpty() } ?: CurrencyScreenUiState.Error("No currencies found")
                 } else {
-                    old.favoriteUiState == new.favoriteUiState
+                    CurrencyScreenUiState.Success(
+                        sortSettings = favoriteSortSettings,
+                        currenciesList = resultList
+                    ).takeIf { resultList.isNotEmpty() } ?: CurrencyScreenUiState.Error("Favorites is not found")
                 }
-            }
+            }.flowOn(Dispatchers.IO)
     }
 
 
     override suspend fun updateCurrencies(): Response<Unit> {
         return runResulting {
-            currencyRepository.uploadCurrencies()
+            currencyRepository.updateCurrencies()
         }
     }
 
@@ -125,26 +91,39 @@ class CurrencyInteractor @Inject constructor(
         }
     }
 
-    private fun prepareBothActiveSortSettings(
-        list: List<Currency>,
+    override fun prepareSortedCurrenciesList(
+        currencies: List<Currency>,
         sortSettings: SortSettings
     ): List<Currency> {
         return when {
-            sortSettings.sortByName == SortBy.Ascending && sortSettings.sortByRate == SortBy.Ascending -> {
-                list.groupBy { it.name.first() }.map { it.value.sortedBy { it.rate } }.flatten()
+            sortSettings.sortByName.isAscending && sortSettings.sortByRate.isAscending -> {
+                currencies.groupBy { it.name.first() }.map { it.value.sortedBy { it.rate } }.flatten()
             }
-            sortSettings.sortByName == SortBy.Ascending && sortSettings.sortByRate == SortBy.Descending -> {
-                list.groupBy { it.name.first() }.map { it.value.sortedByDescending { it.rate } }
+            sortSettings.sortByName.isAscending && sortSettings.sortByRate.isDescending -> {
+                currencies.groupBy { it.name.first() }.map { it.value.sortedByDescending { it.rate } }
                     .flatten()
             }
-            sortSettings.sortByName == SortBy.Descending && sortSettings.sortByRate == SortBy.Ascending -> {
-                list.groupBy { it.name.first() }.map { it.value.sortedBy { it.rate } }.reversed()
+            sortSettings.sortByName.isAscending && sortSettings.sortByRate.isDescending -> {
+                currencies.groupBy { it.name.first() }.map { it.value.sortedBy { it.rate } }.reversed()
                     .flatten()
             }
-            else -> {
-                list.groupBy { it.name.first() }.map { it.value.sortedByDescending { it.rate } }
+            sortSettings.sortByName.isDescending && sortSettings.sortByRate.isDescending -> {
+                currencies.groupBy { it.name.first() }.map { it.value.sortedByDescending { it.rate } }
                     .reversed().flatten()
             }
+            sortSettings.sortByName.isAscending -> {
+                currencies.sortedBy { it.name }
+            }
+            sortSettings.sortByName.isDescending -> {
+                currencies.sortedByDescending { it.name }
+            }
+            sortSettings.sortByRate.isAscending -> {
+                currencies.sortedBy { it.rate }
+            }
+            sortSettings.sortByRate.isDescending -> {
+                currencies.sortedByDescending { it.rate }
+            }
+            else -> currencies
         }
     }
 }

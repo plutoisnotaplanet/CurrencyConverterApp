@@ -54,8 +54,6 @@ dependencies {
     //core
     implementation (Dependencies.Kotlin.stdlib)
     implementation (Dependencies.AndroidX.coreKtx)
-    implementation (Dependencies.AndroidX.appcompat)
-    implementation (Dependencies.AndroidX.material)
 
     //compose
     implementation (Dependencies.AndroidX.Compose.runtime)
@@ -73,6 +71,7 @@ dependencies {
     implementation (Dependencies.AndroidX.Compose.uiToolingPreview)
     implementation (Dependencies.AndroidX.Compose.accompanistPager)
     implementation (Dependencies.AndroidX.Compose.accompanistPagerIndicator)
+    implementation (Dependencies.AndroidX.Compose.accompanistSwipeRefresh)
     debugImplementation (Dependencies.AndroidX.Compose.uiTooling)
 
     // network
@@ -92,7 +91,7 @@ dependencies {
     implementation (Dependencies.AndroidX.Lifecycle.viewModel)
 
     // coroutines
-    implementation (Dependencies.Coroutines.android)
+    implementation (Dependencies.Coroutines.coroutinesAndroid)
     testImplementation (Dependencies.Coroutines.test)
 
     // hilt

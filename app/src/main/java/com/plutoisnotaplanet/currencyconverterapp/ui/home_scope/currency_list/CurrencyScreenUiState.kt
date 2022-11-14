@@ -20,7 +20,18 @@ sealed class CurrencyScreenUiState {
     fun getSortSettingsIfExist(): SortSettings {
         return when (this) {
             is Success -> sortSettings
-            else -> SortSettings(sortByName = SortBy.None, sortByRate = SortBy.None, selectedCurrency = Currency.getUsdCurrency())
+            else -> SortSettings(
+                sortByName = SortBy.None,
+                sortByRate = SortBy.None,
+                selectedCurrency = Currency.getUsdCurrency()
+            )
         }
     }
+
+    val isSuccess: Boolean
+        get() = this is Success
+
+    val isLoading: Boolean
+        get() = this is Loading
+
 }

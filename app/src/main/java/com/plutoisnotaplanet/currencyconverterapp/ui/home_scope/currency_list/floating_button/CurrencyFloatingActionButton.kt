@@ -1,33 +1,26 @@
 package com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.floating_button
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Sort
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.dp
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
-import com.plutoisnotaplanet.currencyconverterapp.application.utils.ResourceUtil
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.CurrencyFlagActionButton
-import com.plutoisnotaplanet.currencyconverterapp.ui.components.DefaultTitle
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.IconifiedActionButton
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.MultifyActionButton
-import com.plutoisnotaplanet.currencyconverterapp.ui.components.modifier.pushedAnimation
-import com.plutoisnotaplanet.currencyconverterapp.ui.theme.light_secondary
+import com.plutoisnotaplanet.currencyconverterapp.ui.components.SearchState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
 
 @OptIn(
-    ExperimentalAnimationApi::class
+    ExperimentalAnimationApi::class, FlowPreview::class, ExperimentalCoroutinesApi::class
 )
 @Composable
 fun CurrencyFloatingActionButtons(
@@ -35,7 +28,7 @@ fun CurrencyFloatingActionButtons(
     state: FloatingButtonState,
     onChangeButtonState: (FloatingButtonState) -> Unit,
     onQueryResult: (String) -> Unit,
-    onSortSettingsAction: () -> Unit = {},
+    onOpenSortSettings: () -> Unit = {},
     onScrollToSelectedCurrency: (Currency) -> Unit,
     onScrollToTopAction: () -> Unit
 ) {
@@ -44,10 +37,18 @@ fun CurrencyFloatingActionButtons(
         mutableStateOf(SearchState())
     }
 
-    searchViewState.onQueryResult(
-        debounce = 300
-    ) { query ->
-        onQueryResult(query)
+    LaunchedEffect(key1 = state.isSearchView) {
+        snapshotFlow { searchViewState.query }
+            .distinctUntilChanged()
+            .filter { query: TextFieldValue ->
+                query.text.isNotEmpty()
+            }
+            .debounce(300)
+            .mapLatest { query: TextFieldValue ->
+                val text = query.text.trim().lowercase()
+                onQueryResult(text)
+            }
+            .collect()
     }
 
     Row(
@@ -75,27 +76,39 @@ fun CurrencyFloatingActionButtons(
                     onQueryResult("")
                 },
                 focused = searchViewState.focused,
-                onChangeState = {
-                    onChangeButtonState(it)
-                }
+                onChangeState = onChangeButtonState
             )
-            AnimatedVisibility(visible = state.isExpanded) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconifiedActionButton(
-                        onActionClick = onSortSettingsAction,
-                        imageVector = Icons.Default.Sort
-                    )
-                    IconifiedActionButton(
-                        onActionClick = onScrollToTopAction,
-                        imageVector = Icons.Default.ArrowUpward
-                    )
+            AnimatedContent(targetState = state, transitionSpec = {
+                fadeIn() + expandHorizontally() with fadeOut() + shrinkHorizontally()
+            }) { animatedState ->
+                when {
+                    !animatedState.isCollapsed -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            AnimatedVisibility(visible = animatedState.isExpanded) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    IconifiedActionButton(
+                                        onActionClick = onOpenSortSettings,
+                                        imageVector = Icons.Default.Sort
+                                    )
+                                    IconifiedActionButton(
+                                        onActionClick = onScrollToTopAction,
+                                        imageVector = Icons.Default.ArrowUpward
+                                    )
+                                }
+                            }
+                            IconifiedActionButton(
+                                onActionClick = {
+                                    onChangeButtonState(state.getPrevious)
+                                    if (state.isSearchView) {
+                                        searchViewState.clear()
+                                        onQueryResult("")
+                                    }
+                                },
+                                imageVector = Icons.Default.ArrowBack
+                            )
+                        }
+                    }
                 }
-            }
-            AnimatedVisibility(visible = !state.isCollapsed) {
-                IconifiedActionButton(
-                    onActionClick = { onChangeButtonState(state.getPrevious) },
-                    imageVector = Icons.Default.ArrowBack
-                )
             }
         }
     }

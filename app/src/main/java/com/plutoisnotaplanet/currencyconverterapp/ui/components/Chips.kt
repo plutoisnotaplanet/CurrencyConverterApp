@@ -95,7 +95,7 @@ fun SelectableChip(
         modifier = modifier,
         elevation = 4.dp,
         shape = MaterialTheme.shapes.medium.copy(CornerSize(percent = 15)),
-        color = if (isSelected) light_primary else Color.Gray
+        color = if (isSelected) MaterialTheme.colors.primary else Color.Gray
     ) {
         Row(modifier = Modifier
             .toggleable(

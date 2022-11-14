@@ -10,7 +10,7 @@ interface CurrencySortSettingsRepository {
 
     suspend fun observeSortSettings(): Flow<Pair<SortSettings, SortSettings>>
 
-    suspend fun getSortSettingsByListType(listType: CurrencyListType): SortSettings
-
     suspend fun updateSortSettings(listType: CurrencyListType, settings: SortSettings)
+
+    suspend fun updateSelectedCurrency(listType: CurrencyListType, currencyCode: String)
 }

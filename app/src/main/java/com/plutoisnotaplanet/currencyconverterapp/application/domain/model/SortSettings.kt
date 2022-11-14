@@ -1,16 +1,14 @@
 package com.plutoisnotaplanet.currencyconverterapp.application.domain.model
 
+import androidx.compose.runtime.Stable
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.entitites.CurrencySortSettingsEntity
 
+@Stable
 data class SortSettings(
     val selectedCurrency: Currency,
     val sortByName: SortBy,
     val sortByRate: SortBy
 ) {
-
-    companion object {
-        fun getEmpty(): SortSettings = SortSettings(Currency("USD",1.0, false), SortBy.None, SortBy.None)
-    }
 
     fun toCurrencySortSettingsEntity(id: Int): CurrencySortSettingsEntity {
         return CurrencySortSettingsEntity(
@@ -22,7 +20,7 @@ data class SortSettings(
     }
 
     val isSortActive: Boolean
-        get() = isSortByNameActive || isSortByRateActive || isCountrySelected
+        get() = isSortByNameActive || isSortByRateActive || isCurrencyNotDefault
 
     val isSortByNameActive: Boolean
         get() = sortByName != SortBy.None
@@ -30,6 +28,6 @@ data class SortSettings(
     val isSortByRateActive: Boolean
         get() = sortByRate != SortBy.None
 
-    val isCountrySelected: Boolean
+    val isCurrencyNotDefault: Boolean
         get() = selectedCurrency.isNotDefault
 }

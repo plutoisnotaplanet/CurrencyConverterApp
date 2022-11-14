@@ -63,24 +63,19 @@ object Dependencies {
 
     object Coroutines {
         private const val version = "1.3.9"
-        const val android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
+        const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version"
         const val test = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$version"
     }
 
 
     object AndroidX {
-        const val appcompat = "androidx.appcompat:appcompat:1.5.1"
         const val coreKtx = "androidx.core:core-ktx:1.9.0"
-        const val material = "com.google.android.material:material:1.7.0"
-        const val tooling = "androidx.ui:ui-tooling:1.0.0-alpha07"
 
         object Compose {
             const val version = "1.3.0"
-
             const val compilerVersion = "1.3.2"
-            const val activityComposeVersion = "1.6.0"
+            private const val activityComposeVersion = "1.6.0"
             private const val accompanistVersion = "0.27.0"
-            private const val orchestraVersion = "1.1.1"
             private const val navigationComposeVersion = "2.5.1"
             private const val constraintVersion = "1.0.1"
 
@@ -99,11 +94,9 @@ object Dependencies {
             const val activity = "androidx.activity:activity-compose:${activityComposeVersion}"
             const val constraint = "androidx.constraintlayout:constraintlayout-compose:$constraintVersion"
 
-            const val accompanistInsets  ="com.google.accompanist:accompanist-insets:$accompanistVersion"
             const val accompanistPager = "com.google.accompanist:accompanist-pager:$accompanistVersion"
             const val accompanistPagerIndicator = "com.google.accompanist:accompanist-pager-indicators:$accompanistVersion"
-            const val accompanistFlow = "com.google.accompanist:accompanist-flowlayout:$accompanistVersion"
-            const val orchestra = "com.github.skydoves:orchestra-balloon:$orchestraVersion"
+            const val accompanistSwipeRefresh = "com.google.accompanist:accompanist-swiperefresh:$accompanistVersion"
         }
 
         object Lifecycle {

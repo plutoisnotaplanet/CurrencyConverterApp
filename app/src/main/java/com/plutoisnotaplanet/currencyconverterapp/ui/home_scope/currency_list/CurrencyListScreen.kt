@@ -12,6 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyListType
 import com.plutoisnotaplanet.currencyconverterapp.application.utils.OnLifecycleEvent
@@ -36,6 +38,18 @@ fun CurrencyListScreen(
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
+
+    var lastSelectedCurrency by remember() {
+        mutableStateOf(Currency.getUsdCurrency())
+    }
+
+    LaunchedEffect(key1 = uiState) {
+        if (uiState.isSuccess) {
+            lastSelectedCurrency =
+                (uiState as CurrencyScreenUiState.Success).sortSettings.selectedCurrency
+        }
+    }
 
     OnLifecycleEvent { owner, event ->
         if (event == Lifecycle.Event.ON_RESUME) {
@@ -44,15 +58,14 @@ fun CurrencyListScreen(
     }
 
     Scaffold(
-        floatingActionButtonPosition = if (buttonState == FloatingButtonState.SearchView) {
+        floatingActionButtonPosition = if (buttonState == FloatingButtonState.SearchView)
             FabPosition.Center
-        } else {
-            FabPosition.End
-        },
+        else
+            FabPosition.End,
         floatingActionButton = {
             CurrencyFloatingActionButtons(
-                selectedCurrency = if (uiState is CurrencyScreenUiState.Success) uiState.sortSettings.selectedCurrency else Currency.getUsdCurrency(),
-                onSortSettingsAction = showSortSettingsScreen,
+                selectedCurrency = lastSelectedCurrency,
+                onOpenSortSettings = showSortSettingsScreen,
                 state = buttonState,
                 onChangeButtonState = { buttonState = it },
                 onQueryResult = {
@@ -65,55 +78,66 @@ fun CurrencyListScreen(
                 },
                 onScrollToSelectedCurrency = {
                     if (uiState is CurrencyScreenUiState.Success) {
-                        val itemInList = uiState.currenciesList.indexOfFirst { currency ->
+                        val indexInList = uiState.currenciesList.indexOfFirst { currency ->
                             currency.name == it.name
                         }
-                        if (itemInList != -1) {
+                        if (indexInList != -1) {
                             coroutineScope.launch {
-                                lazyListState.scrollToItem(itemInList)
+                                lazyListState.scrollToItem(indexInList)
                             }
                         }
                     }
                 },
                 onScrollToTopAction = {
                     coroutineScope.launch {
-                        lazyListState.animateScrollToItem(0)
+                        lazyListState.scrollToItem(0)
                     }
                 }
             )
         }
     ) { paddingValues ->
 
-        LazyColumn(
+        SwipeRefresh(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            state = lazyListState
-        ) {
+                .padding(paddingValues)
+                .fillMaxSize(),
+            state = swipeRefreshState,
+            onRefresh = { obtainAction(CurrencyScreenAction.UpdateDataRemote(listType)) }) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = lazyListState
+            ) {
 
-            when (uiState) {
-                is CurrencyScreenUiState.Loading -> {
-                    ShowLoader(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
-                }
-                is CurrencyScreenUiState.Error -> {
-                    ShowError(errorMessage = uiState.message, modifier = Modifier.fillMaxSize())
-                }
-                is CurrencyScreenUiState.Success -> {
-                    items(
-                        items = uiState.currenciesList,
-                        key = { item -> item.name },
-                    ) { item ->
+                when (uiState) {
+                    is CurrencyScreenUiState.Loading -> {
+                        item {
+                            ShowLoader(
+                                modifier = Modifier.fillParentMaxSize()
+                            )
+                        }
+                    }
+                    is CurrencyScreenUiState.Error -> {
+                        item {
+                            ShowError(
+                                errorMessage = uiState.message,
+                                modifier = Modifier.fillParentMaxSize()
+                            )
+                        }
+                    }
+                    is CurrencyScreenUiState.Success -> {
+                        items(
+                            items = uiState.currenciesList,
+                            key = { item -> item.name },
+                        ) { item ->
 
-                        CurrencyListItem(
-                            modifier = Modifier.animateItemPlacement(),
-                            item = item,
-                            currentListType = listType,
-                            onAction = obtainAction,
-                            selectedCurrencyName = uiState.sortSettings.selectedCurrency.name
-                        )
+                            CurrencyListItem(
+                                modifier = Modifier.animateItemPlacement(),
+                                item = item,
+                                currentListType = listType,
+                                onAction = obtainAction,
+                                selectedCurrencyName = uiState.sortSettings.selectedCurrency.name
+                            )
+                        }
                     }
                 }
             }
@@ -121,36 +145,34 @@ fun CurrencyListScreen(
     }
 }
 
-fun LazyListScope.ShowLoader(
+@Composable
+fun ShowLoader(
     modifier: Modifier = Modifier
 ) {
-    item {
-        Box(
-            modifier = modifier
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(16.dp)
-            )
-        }
+    Box(
+        modifier = modifier
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(16.dp)
+        )
     }
 }
 
-fun LazyListScope.ShowError(
+@Composable
+fun ShowError(
     modifier: Modifier = Modifier,
     errorMessage: String,
 ) {
-    item {
-        Box(
-            modifier = modifier
-        ) {
-            DefaultTitle(
-                modifier = Modifier
-                    .align(Alignment.Center),
-                value = errorMessage
-            )
-        }
+    Box(
+        modifier = modifier
+    ) {
+        DefaultTitle(
+            modifier = Modifier
+                .align(Alignment.Center),
+            value = errorMessage
+        )
     }
 }
 

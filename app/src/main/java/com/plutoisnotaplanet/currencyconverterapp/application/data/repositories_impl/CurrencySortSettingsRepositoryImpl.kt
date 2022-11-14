@@ -56,26 +56,7 @@ class CurrencySortSettingsRepositoryImpl @Inject constructor(
         currencySortSettingsDao.save(entity)
     }
 
-    override suspend fun getSortSettingsByListType(listType: CurrencyListType): SortSettings {
-        return if (currencySortSettingsDao.hasSortSettings(listType.ordinal)) {
-            val entity = currencySortSettingsDao.getSortSettings(listType.ordinal)!!
-            entity.toSortSettings(
-                currencyDao.getCurrency(entity.currencyCode)?.toModel()
-                    ?: Currency.getUsdCurrency()
-            )
-        } else {
-            val emptySortSettings = CurrencySortSettingsEntity(
-                id = listType.ordinal,
-                currencyCode = "USD",
-                sortByName = SortBy.None.ordinal,
-                sortByRate = SortBy.None.ordinal,
-            )
-            currencySortSettingsDao.save(emptySortSettings)
-            SortSettings(
-                selectedCurrency = Currency.getUsdCurrency(),
-                sortByName = SortBy.None,
-                sortByRate = SortBy.None,
-            )
-        }
+    override suspend fun updateSelectedCurrency(listType: CurrencyListType, currencyCode: String) {
+        currencySortSettingsDao.updateSelectedCountryById(listType.ordinal, currencyCode)
     }
 }

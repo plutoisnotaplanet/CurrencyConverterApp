@@ -11,4 +11,8 @@
     <string name="tv_search_hint">Введите валюту страны</string>
     <string name="tv_for_base_currency_this_rate">За 1 %1$s = %2$s %3$s</string>
     <string name="tv_exchange_rate">Курс к базововой валюте</string>
+    <string name="error_on_update">Ошибка при обновлении данных</string>
+    <string name="error_on_select_base_currency">Ошибка при выборе базовой валюты</string>
+    <string name="error_on_select_favorite_currency">Ошибка при добавлении валюты в список избранных</string>
+    <string name="error_on_update_sort_settings">Ошибка при обновлении настроек сортировки</string>
 </resources>

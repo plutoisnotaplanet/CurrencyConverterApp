@@ -16,23 +16,22 @@ interface CurrencyDao {
     @Query("UPDATE table_currency SET column_exchangeRate = :exchangeRate WHERE column_currencyCode = :currencyCode")
     suspend fun updateExchangeRate(currencyCode: String, exchangeRate: Double)
 
+    @Query("UPDATE table_currency SET column_isFavorite = :isFavorite WHERE column_currencyCode = :currencyCode")
+    suspend fun updateFavorState(currencyCode: String, isFavorite: Boolean)
+
     @Query("SELECT * FROM table_currency WHERE column_currencyCode = :currencyCode")
     suspend fun getCurrency(currencyCode: String): CurrencyEntity?
 
     @Query("SELECT * FROM table_currency ORDER BY column_currencyCode ASC")
-    fun getAllCurrencies(): Flow<List<CurrencyEntity>>
+    fun getAllCurrenciesFlow(): Flow<List<CurrencyEntity>>
 
-    @Transaction
-    suspend fun changeFavoriteState(currencyCode: String, isFavorite: Boolean) {
-        val currency = getCurrency(currencyCode) ?: return
-        currency.isFavorite = isFavorite
-        update(currency)
-    }
+    @Query("SELECT * FROM table_currency ORDER BY column_currencyCode ASC")
+    fun getAllCurrencies(): List<CurrencyEntity>
 
     @Transaction
     suspend fun save(currency: CurrencyEntity) {
         if (getCurrency(currency.currencyCode) != null) {
-            update(currency)
+            updateExchangeRate(currency.currencyCode, currency.exchangeRate)
         } else insert(currency)
     }
 
