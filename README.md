@@ -1,5 +1,5 @@
-## Currency Converter
-Currency conversion app using live exchange rates.
+## Description
+Currency conversion app using live exchange rates with dark theme support
 
 ### API service
 https://openexchangerates.org/
