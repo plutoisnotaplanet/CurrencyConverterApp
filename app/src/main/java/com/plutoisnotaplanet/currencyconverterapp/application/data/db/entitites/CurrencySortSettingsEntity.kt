@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.CurrencyConverterDatabase
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
+import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.SortBy
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.SortSettings
 
@@ -21,7 +21,7 @@ data class CurrencySortSettingsEntity(
     val sortByRate: Int
 ) {
 
-    fun toSortSettings(currency: Currency): SortSettings {
+    fun toSortSettings(currency: CurrencyViewItem): SortSettings {
         val sortList = SortBy.values()
         return SortSettings(
             selectedCurrency = currency,

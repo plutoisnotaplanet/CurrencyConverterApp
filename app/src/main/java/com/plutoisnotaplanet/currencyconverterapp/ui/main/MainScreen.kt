@@ -12,10 +12,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.rememberPagerState
 import com.plutoisnotaplanet.currencyconverterapp.ui.common.SnackbarController
-import com.plutoisnotaplanet.currencyconverterapp.ui.common.SnackbarState
+import com.plutoisnotaplanet.currencyconverterapp.ui.common.SnackbarMessageState
 import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.pager.HorizontalPagerScreen
 import kotlinx.coroutines.flow.collectLatest
-import timber.log.Timber
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -30,15 +29,14 @@ fun MainScreen(
         val snackbarController = SnackbarController(this)
 
         viewModel.snackbarFlow.collectLatest { state ->
-            Timber.e("snack $state")
             when (state) {
-                is SnackbarState.ResMessage -> {
+                is SnackbarMessageState.ResMessage -> {
                     snackbarController.showSnackbar(
                         scaffoldState = scaffoldState,
                         message = context.getString(state.message),
                     )
                 }
-                is SnackbarState.StringMessage -> {
+                is SnackbarMessageState.StringMessage -> {
                     snackbarController.showSnackbar(
                         scaffoldState = scaffoldState,
                         message = state.message,

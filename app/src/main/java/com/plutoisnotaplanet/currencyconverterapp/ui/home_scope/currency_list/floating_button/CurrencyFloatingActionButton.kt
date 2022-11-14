@@ -10,7 +10,7 @@ import androidx.compose.material.icons.filled.Sort
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.TextFieldValue
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
+import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.CurrencyFlagActionButton
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.IconifiedActionButton
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.MultifyActionButton
@@ -24,12 +24,12 @@ import kotlinx.coroutines.flow.*
 )
 @Composable
 fun CurrencyFloatingActionButtons(
-    selectedCurrency: Currency = Currency.getUsdCurrency(),
+    selectedCurrency: CurrencyViewItem = CurrencyViewItem.getEmpty(),
     state: FloatingButtonState,
     onChangeButtonState: (FloatingButtonState) -> Unit,
     onQueryResult: (String) -> Unit,
     onOpenSortSettings: () -> Unit = {},
-    onScrollToSelectedCurrency: (Currency) -> Unit,
+    onScrollToSelectedCurrency: (CurrencyViewItem) -> Unit,
     onScrollToTopAction: () -> Unit
 ) {
 
@@ -37,18 +37,18 @@ fun CurrencyFloatingActionButtons(
         mutableStateOf(SearchState())
     }
 
-    LaunchedEffect(key1 = state.isSearchView) {
-        snapshotFlow { searchViewState.query }
-            .distinctUntilChanged()
-            .filter { query: TextFieldValue ->
-                query.text.isNotEmpty()
-            }
-            .debounce(300)
-            .mapLatest { query: TextFieldValue ->
-                val text = query.text.trim().lowercase()
-                onQueryResult(text)
-            }
-            .collect()
+    LaunchedEffect(key1 = state) {
+        if (state.isSearchView) {
+            snapshotFlow { searchViewState.query }
+                .distinctUntilChanged()
+                .debounce(300)
+                .mapLatest { query: TextFieldValue ->
+                    val text = query.text.trim().lowercase()
+                    onQueryResult(text)
+                }
+                .collect()
+        } else
+            searchViewState.clear()
     }
 
     Row(

@@ -2,15 +2,11 @@ package com.plutoisnotaplanet.currencyconverterapp.application.data.db.entitites
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.CurrencyConverterDatabase
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
+import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import java.math.BigDecimal
-import java.math.RoundingMode
-import java.text.DecimalFormat
-import java.text.NumberFormat
-import java.util.*
 
 @Entity(tableName = CurrencyConverterDatabase.CURRENCY_TABLE)
 data class CurrencyEntity(
@@ -18,19 +14,31 @@ data class CurrencyEntity(
     @ColumnInfo(name = "column_currencyCode")
     val currencyCode: String,
     @ColumnInfo(name = "column_exchangeRate")
-    var exchangeRate: Double
+    var exchangeRate: Double,
 ) {
 
     @ColumnInfo(name = "column_isFavorite")
     var isFavorite = false
 
+    @ColumnInfo(name = "column_countryName")
+    var countryName = ""
 
 
     fun toModel(): Currency {
         return Currency(
-            currencyCode,
-            BigDecimal(exchangeRate),
-            isFavorite
+            code = currencyCode,
+            countryName = countryName.takeIf { it.isNotBlank() } ?: currencyCode,
+            rate = BigDecimal(exchangeRate),
+            isFavorite = isFavorite
+        )
+    }
+
+    fun toCurrencyViewItem(): CurrencyViewItem {
+        return CurrencyViewItem(
+            code = currencyCode,
+            countryName = countryName.takeIf { it.isNotBlank() } ?: currencyCode,
+            rate = BigDecimal(exchangeRate).toPlainString(),
+            isFavorite = isFavorite
         )
     }
 }

@@ -9,7 +9,7 @@ import com.plutoisnotaplanet.currencyconverterapp.application.data.db.dao.Curren
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.entitites.CurrencyEntity
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.entitites.CurrencySortSettingsEntity
 
-@Database(entities = [CurrencyEntity::class, CurrencySortSettingsEntity::class], version = 4, exportSchema = false)
+@Database(entities = [CurrencyEntity::class, CurrencySortSettingsEntity::class], version = 1, exportSchema = false)
 abstract class CurrencyConverterDatabase : RoomDatabase() {
 
     abstract val currencyDao: CurrencyDao

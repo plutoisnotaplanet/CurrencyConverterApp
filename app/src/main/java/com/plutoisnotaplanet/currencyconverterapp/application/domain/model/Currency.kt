@@ -6,26 +6,21 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
 
-
 data class Currency(
-    val name: String,
+    val code: String,
+    val countryName: String,
     val rate: BigDecimal,
     val isFavorite: Boolean
 ) {
-    companion object {
-        fun getUsdCurrency(): Currency = Currency("USD", BigDecimal.ONE, false)
-    }
 
     fun toCurrencyViewItem(selectedCurrencyCode: String): CurrencyViewItem {
         return CurrencyViewItem(
-            name,
-            conversionText(selectedCurrencyCode),
-            isFavorite
+            code = code,
+            countryName = countryName,
+            rate = conversionText(selectedCurrencyCode),
+            isFavorite = isFavorite
         )
     }
-
-    val isNotDefault: Boolean
-        get() = this != getUsdCurrency()
 
     private val decimalFormatter: DecimalFormat
     private val decimalSeparator: String
@@ -41,7 +36,7 @@ data class Currency(
 
     private val conversionText: (String) -> String
         inline get() = { currencyCode ->
-            val scale = if (currencyCode == "BTC" || name == "BTC") 15 else 4
+            val scale = if (currencyCode == "BTC" || code == "BTC") 15 else 6
             formatConversion(rate.roundToFourDecimalPlaces(scale).toString())
         }
 

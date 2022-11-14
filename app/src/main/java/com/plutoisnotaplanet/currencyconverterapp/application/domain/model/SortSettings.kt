@@ -5,7 +5,7 @@ import com.plutoisnotaplanet.currencyconverterapp.application.data.db.entitites.
 
 @Stable
 data class SortSettings(
-    val selectedCurrency: Currency,
+    val selectedCurrency: CurrencyViewItem,
     val sortByName: SortBy,
     val sortByRate: SortBy
 ) {
@@ -13,7 +13,7 @@ data class SortSettings(
     fun toCurrencySortSettingsEntity(id: Int): CurrencySortSettingsEntity {
         return CurrencySortSettingsEntity(
             id = id,
-            currencyCode = selectedCurrency.name,
+            currencyCode = selectedCurrency.code,
             sortByName = sortByName.ordinal,
             sortByRate = sortByRate.ordinal,
         )

@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import timber.log.Timber
 import java.math.BigDecimal
 import javax.inject.Inject
 
@@ -26,8 +25,6 @@ class CurrencyInteractor @Inject constructor(
         return currencyRepository.observeCurrencies()
             .combine(currencySortSettingsRepository.observeSortSettings()) { currencies, pairOfSettings ->
 
-                Timber.e("emitInteractror")
-
                 val (popularSortSettings, favoriteSortSettings) = pairOfSettings
 
                 val activeSortSettings =
@@ -36,15 +33,12 @@ class CurrencyInteractor @Inject constructor(
                 var resultList = currencies
 
                 if (activeSortSettings.isCurrencyNotDefault) {
-                    Timber.e("selected ${activeSortSettings.selectedCurrency}")
                     resultList = resultList.map { currency ->
-                        Currency(
-                            name = currency.name,
+                        currency.copy(
                             rate = CurrencyConversion.convertCurrency(
-                                fromRate = activeSortSettings.selectedCurrency.rate,
+                                fromRate = BigDecimal(activeSortSettings.selectedCurrency.rate),
                                 toRate = currency.rate
-                            ),
-                            isFavorite = currency.isFavorite
+                            )
                         )
                     }
                 }
@@ -59,11 +53,12 @@ class CurrencyInteractor @Inject constructor(
 
                 if (queryText.isNotBlank()) {
                     resultList = resultList.filter {
-                        it.name.lowercase().contains(queryText, true)
+                        it.code.lowercase().contains(queryText, true) ||
+                                it.countryName.lowercase().contains(queryText, true)
                     }
                 }
 
-                val finalList = resultList.map { it.toCurrencyViewItem(activeSortSettings.selectedCurrency.name) }
+                val finalList = resultList.map { it.toCurrencyViewItem(activeSortSettings.selectedCurrency.code) }
 
                 if (listType.isPopular) {
                     CurrencyScreenUiState.Success(
@@ -88,7 +83,7 @@ class CurrencyInteractor @Inject constructor(
 
     override suspend fun changeFavoriteCurrencyState(currency: CurrencyViewItem): Response<Unit> {
         return runResulting {
-            currencyRepository.changeCurrencyFavoriteState(currency.name, currency.isFavorite)
+            currencyRepository.changeCurrencyFavoriteState(currency.code, currency.isFavorite)
         }
     }
 
@@ -98,25 +93,25 @@ class CurrencyInteractor @Inject constructor(
     ): List<Currency> {
         return when {
             sortSettings.sortByName.isAscending && sortSettings.sortByRate.isAscending -> {
-                currencies.groupBy { it.name.first() }.map { it.value.sortedBy { it.rate } }.flatten()
+                currencies.groupBy { it.countryName.first() }.map { it.value.sortedBy { it.rate } }.flatten()
             }
             sortSettings.sortByName.isAscending && sortSettings.sortByRate.isDescending -> {
-                currencies.groupBy { it.name.first() }.map { it.value.sortedByDescending { it.rate } }
+                currencies.groupBy { it.countryName.first() }.map { it.value.sortedByDescending { it.rate } }
                     .flatten()
             }
             sortSettings.sortByName.isAscending && sortSettings.sortByRate.isDescending -> {
-                currencies.groupBy { it.name.first() }.map { it.value.sortedBy { it.rate } }.reversed()
+                currencies.groupBy { it.countryName.first() }.map { it.value.sortedBy { it.rate } }.reversed()
                     .flatten()
             }
             sortSettings.sortByName.isDescending && sortSettings.sortByRate.isDescending -> {
-                currencies.groupBy { it.name.first() }.map { it.value.sortedByDescending { it.rate } }
+                currencies.groupBy { it.countryName.first() }.map { it.value.sortedByDescending { it.rate } }
                     .reversed().flatten()
             }
             sortSettings.sortByName.isAscending -> {
-                currencies.sortedBy { it.name }
+                currencies.sortedBy { it.countryName }
             }
             sortSettings.sortByName.isDescending -> {
-                currencies.sortedByDescending { it.name }
+                currencies.sortedByDescending { it.countryName }
             }
             sortSettings.sortByRate.isAscending -> {
                 currencies.sortedBy { it.rate }
@@ -124,7 +119,7 @@ class CurrencyInteractor @Inject constructor(
             sortSettings.sortByRate.isDescending -> {
                 currencies.sortedByDescending { it.rate }
             }
-            else -> currencies
+            else -> currencies.sortedBy { it.countryName }
         }
     }
 }

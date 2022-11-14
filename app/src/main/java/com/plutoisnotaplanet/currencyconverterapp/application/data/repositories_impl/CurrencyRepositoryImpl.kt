@@ -4,7 +4,6 @@ import com.plutoisnotaplanet.currencyconverterapp.application.data.db.dao.Curren
 import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.Api
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.repository.CurrencyRepository
-import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
@@ -13,16 +12,27 @@ class CurrencyRepositoryImpl @Inject constructor(
     private val currencyDao: CurrencyDao
 ) : CurrencyRepository {
 
-
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun observeCurrencies(): Flow<List<Currency>> {
-        return currencyDao.getAllCurrenciesFlow().flatMapLatest { list ->
+        return currencyDao.getAllCurrenciesFlow().map { list ->
+            var resultList = list.map { it.toModel() }
             if (list.isEmpty()) {
-                updateCurrencies()
-                flow { emit(list.map { it.toModel() }) }
-            } else {
-                flow { emit(list.map { it.toModel() }) }
-            }
+                val exchangeRatesResponse =
+                    api.getExchangeRates().currencyRatesResponse.currenciesList
+                val countriesNamesResponse =
+                    api.getCountriesNames().currenciesMap
+
+                countriesNamesResponse.forEach { (currencyCode, countryName) ->
+                    exchangeRatesResponse.find { it.currencyCode == currencyCode }?.let {
+                        it.countryName = countryName
+                    }
+                }
+
+                currencyDao.save(exchangeRatesResponse)
+                resultList = exchangeRatesResponse.map { it.toModel() }
+                resultList
+            } else
+                resultList
+
         }
     }
 
@@ -35,5 +45,14 @@ class CurrencyRepositoryImpl @Inject constructor(
             api.getExchangeRates().currencyRatesResponse.currenciesList
 
         currencyDao.save(responseList)
+    }
+
+    override suspend fun uploadCurrenciesCountriesNames() {
+        val isCountriesNamesEmpty = currencyDao.getAllCurrencies().any { it.countryName.isNotBlank() }
+        if (isCountriesNamesEmpty) return
+
+        val responseList =
+            api.getCountriesNames().currenciesMap
+        currencyDao.setCountriesNames(responseList)
     }
 }

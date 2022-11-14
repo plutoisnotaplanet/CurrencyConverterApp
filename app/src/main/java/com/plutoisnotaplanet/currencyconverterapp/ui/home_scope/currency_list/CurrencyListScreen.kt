@@ -3,7 +3,6 @@ package com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
@@ -14,8 +13,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyListType
+import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import com.plutoisnotaplanet.currencyconverterapp.application.utils.OnLifecycleEvent
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.DefaultTitle
 import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.floating_button.CurrencyFloatingActionButtons
@@ -25,7 +24,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CurrencyListScreen(
-    modifier: Modifier = Modifier,
     uiState: CurrencyScreenUiState,
     listType: CurrencyListType,
     lazyListState: LazyListState = LazyListState(),
@@ -41,7 +39,7 @@ fun CurrencyListScreen(
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
 
     var lastSelectedCurrency by remember() {
-        mutableStateOf(Currency.getUsdCurrency())
+        mutableStateOf(CurrencyViewItem.getEmpty())
     }
 
     LaunchedEffect(key1 = uiState) {
@@ -79,7 +77,7 @@ fun CurrencyListScreen(
                 onScrollToSelectedCurrency = {
                     if (uiState is CurrencyScreenUiState.Success) {
                         val indexInList = uiState.currenciesList.indexOfFirst { currency ->
-                            currency.name == it.name
+                            currency.code == it.code
                         }
                         if (indexInList != -1) {
                             coroutineScope.launch {
@@ -127,7 +125,7 @@ fun CurrencyListScreen(
                     is CurrencyScreenUiState.Success -> {
                         items(
                             items = uiState.currenciesList,
-                            key = { item -> item.name },
+                            key = { item -> item.code },
                         ) { item ->
 
                             CurrencyListItem(
@@ -135,7 +133,7 @@ fun CurrencyListScreen(
                                 item = item,
                                 currentListType = listType,
                                 onAction = obtainAction,
-                                selectedCurrencyName = uiState.sortSettings.selectedCurrency.name
+                                selectedCurrencyName = uiState.sortSettings.selectedCurrency.code
                             )
                         }
                     }

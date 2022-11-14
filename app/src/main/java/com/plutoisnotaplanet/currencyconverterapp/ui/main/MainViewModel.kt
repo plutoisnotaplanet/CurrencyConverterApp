@@ -10,7 +10,7 @@ import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.*
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.usecases.CurrencySortSettingsUseCase
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.usecases.CurrencyUseCase
 import com.plutoisnotaplanet.currencyconverterapp.application.extensions.launchOnIo
-import com.plutoisnotaplanet.currencyconverterapp.ui.common.SnackbarState
+import com.plutoisnotaplanet.currencyconverterapp.ui.common.SnackbarMessageState
 import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.CurrencyScreenAction
 import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.CurrencyScreenUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -49,7 +49,7 @@ class MainViewModel @Inject constructor(
             }
         }
 
-    private val _snackbarFlow = MutableSharedFlow<SnackbarState>(
+    private val _snackbarFlow = MutableSharedFlow<SnackbarMessageState>(
         replay = 1,
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
@@ -135,9 +135,9 @@ class MainViewModel @Inject constructor(
 
     private suspend fun showSnackbar(stringMessage: String? = null, resMessage: Int? = null) {
         if (stringMessage != null) {
-            _snackbarFlow.emit(SnackbarState.StringMessage(stringMessage))
+            _snackbarFlow.emit(SnackbarMessageState.StringMessage(stringMessage))
         } else if (resMessage != null) {
-            _snackbarFlow.emit(SnackbarState.ResMessage(resMessage))
+            _snackbarFlow.emit(SnackbarMessageState.ResMessage(resMessage))
         }
     }
 }

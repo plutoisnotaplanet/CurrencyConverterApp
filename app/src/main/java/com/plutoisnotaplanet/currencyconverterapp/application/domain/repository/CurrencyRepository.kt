@@ -10,4 +10,6 @@ interface CurrencyRepository {
     suspend fun updateCurrencies()
 
     suspend fun changeCurrencyFavoriteState(currencyCode: String, isFavorite: Boolean)
+
+    suspend fun uploadCurrenciesCountriesNames()
 }

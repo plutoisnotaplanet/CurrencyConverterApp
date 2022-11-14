@@ -12,10 +12,14 @@ object CurrencyConversion {
     }
 
     private fun convertAnyCurrencyToDollar(fromRate: BigDecimal): BigDecimal {
-        return BigDecimal.ONE.divide(fromRate, MathContext.DECIMAL128)
+        return BigDecimal.ONE.multiply(fromRate, MathContext.DECIMAL128)
     }
 
     private fun convertDollarToAnyCurrency(dollarValue: BigDecimal, toRate: BigDecimal): BigDecimal {
-        return toRate.divide(dollarValue, MathContext.DECIMAL128)
+        return if (dollarValue < BigDecimal.ONE) {
+            dollarValue.divide(toRate, 20, RoundingMode.HALF_UP)
+        } else {
+            toRate.divide(dollarValue, 20, RoundingMode.HALF_UP)
+        }
     }
 }

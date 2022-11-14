@@ -3,7 +3,6 @@ package com.plutoisnotaplanet.currencyconverterapp.ui.components
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Image
@@ -22,7 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
+import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import com.plutoisnotaplanet.currencyconverterapp.application.utils.ResourceUtil
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.modifier.pushedAnimation
 import com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list.floating_button.FloatingButtonState
@@ -57,7 +56,7 @@ fun CurrencyFlagActionButton(
     modifier: Modifier = Modifier,
     state: FloatingButtonState = FloatingButtonState.Collapsed,
     onScrollToSelectedCurrency: () -> Unit = {},
-    selectedCurrency: Currency = Currency.getUsdCurrency(),
+    selectedCurrency: CurrencyViewItem = CurrencyViewItem.getEmpty(),
 ) {
     FloatingActionButton(
         modifier = Modifier.pushedAnimation { onScrollToSelectedCurrency() },
@@ -69,7 +68,7 @@ fun CurrencyFlagActionButton(
         ) {
 
             Image(
-                painter = ResourceUtil.painterResourceByName(name = "usd_${selectedCurrency.name}"),
+                painter = ResourceUtil.painterResourceByName(name = "usd_${selectedCurrency.code}"),
                 contentDescription = null,
                 modifier = Modifier
                     .size(48.dp)
@@ -78,7 +77,7 @@ fun CurrencyFlagActionButton(
 
             AnimatedVisibility(visible = state == FloatingButtonState.Collapsed) {
                 DefaultTitle(
-                    value = selectedCurrency.name,
+                    value = selectedCurrency.code,
                     textColor = Color.White,
                     modifier = Modifier.padding(end = 12.dp)
                 )

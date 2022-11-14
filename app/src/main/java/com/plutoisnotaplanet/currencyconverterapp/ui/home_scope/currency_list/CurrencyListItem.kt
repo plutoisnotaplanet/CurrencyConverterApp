@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -19,13 +18,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.plutoisnotaplanet.currencyconverterapp.R
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyListType
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import com.plutoisnotaplanet.currencyconverterapp.application.utils.ResourceUtil.painterResourceByName
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.*
-import com.plutoisnotaplanet.currencyconverterapp.ui.theme.light_primary
-import com.plutoisnotaplanet.currencyconverterapp.ui.theme.light_surface
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -33,7 +29,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun CurrencyListItem(
     modifier: Modifier = Modifier,
-    item: CurrencyViewItem = CurrencyViewItem("USD", "24.4", true),
+    item: CurrencyViewItem = CurrencyViewItem.getEmpty(),
     selectedCurrencyName: String = "USD",
     currentListType: CurrencyListType = CurrencyListType.POPULAR,
     onAction: (CurrencyScreenAction) -> Unit = {}
@@ -47,17 +43,17 @@ fun CurrencyListItem(
         )
     }
 
-    val commonTextColor = if (item.name == selectedCurrencyName)
+    val commonTextColor = if (item.code == selectedCurrencyName)
         MaterialTheme.colors.onSecondary
     else
         MaterialTheme.colors.onSurface
 
-    val backgroundColor = if (item.name == selectedCurrencyName)
+    val backgroundColor = if (item.code == selectedCurrencyName)
         MaterialTheme.colors.primary
     else
         MaterialTheme.colors.surface
 
-    val subTitleTextColor = if (item.name == selectedCurrencyName)
+    val subTitleTextColor = if (item.code == selectedCurrencyName)
         MaterialTheme.colors.surface.copy(0.6f)
     else
         MaterialTheme.colors.primary.copy(0.6f)
@@ -94,11 +90,11 @@ fun CurrencyListItem(
                     modifier = Modifier
                         .size(36.dp)
                         .align(Alignment.CenterVertically),
-                    painter = painterResourceByName(name = "usd_${item.name}"),
+                    painter = painterResourceByName(name = "usd_${item.code}"),
                     contentDescription = null,
                 )
                 DefaultTitle(
-                    value = item.name,
+                    value = item.countryName,
                     textAlign = TextAlign.Start,
                     textColor = commonTextColor,
                     modifier = Modifier
@@ -129,7 +125,7 @@ fun CurrencyListItem(
                     id = R.string.tv_for_base_currency_this_rate,
                     selectedCurrencyName,
                     item.rate,
-                    item.name
+                    item.code
                 ),
                 valueTextColor = commonTextColor,
                 subTitleTextColor = subTitleTextColor,

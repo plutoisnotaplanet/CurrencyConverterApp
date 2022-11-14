@@ -3,10 +3,7 @@ package com.plutoisnotaplanet.currencyconverterapp.application.data.repositories
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.dao.CurrencyDao
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.dao.CurrencySortSettingsDao
 import com.plutoisnotaplanet.currencyconverterapp.application.data.db.entitites.CurrencySortSettingsEntity
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyListType
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.SortBy
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.SortSettings
+import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.*
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.repository.CurrencySortSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -35,8 +32,8 @@ class CurrencySortSettingsRepositoryImpl @Inject constructor(
         }
         return settingsFlow.map { settingsEntity ->
             settingsEntity.toSortSettings(
-                currency = currencyDao.getCurrency(settingsEntity.currencyCode)?.toModel()
-                    ?: Currency.getUsdCurrency()
+                currency = currencyDao.getCurrency(settingsEntity.currencyCode)?.toCurrencyViewItem()
+                    ?: CurrencyViewItem.getEmpty()
             )
         }
     }

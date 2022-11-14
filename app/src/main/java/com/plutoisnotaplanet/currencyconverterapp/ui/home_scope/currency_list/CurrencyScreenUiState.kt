@@ -1,7 +1,6 @@
 package com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list
 
 import androidx.compose.runtime.Stable
-import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.SortBy
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.SortSettings
@@ -24,7 +23,7 @@ sealed class CurrencyScreenUiState {
             else -> SortSettings(
                 sortByName = SortBy.None,
                 sortByRate = SortBy.None,
-                selectedCurrency = Currency.getUsdCurrency()
+                selectedCurrency = CurrencyViewItem.getEmpty()
             )
         }
     }

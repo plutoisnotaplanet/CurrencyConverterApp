@@ -16,6 +16,9 @@ interface CurrencyDao {
     @Query("UPDATE table_currency SET column_exchangeRate = :exchangeRate WHERE column_currencyCode = :currencyCode")
     suspend fun updateExchangeRate(currencyCode: String, exchangeRate: Double)
 
+    @Query("UPDATE table_currency SET column_countryName = :currencyCountryName WHERE column_currencyCode = :currencyCode")
+    suspend fun setCountryName(currencyCode: String, currencyCountryName: String)
+
     @Query("UPDATE table_currency SET column_isFavorite = :isFavorite WHERE column_currencyCode = :currencyCode")
     suspend fun updateFavorState(currencyCode: String, isFavorite: Boolean)
 
@@ -27,6 +30,15 @@ interface CurrencyDao {
 
     @Query("SELECT * FROM table_currency ORDER BY column_currencyCode ASC")
     fun getAllCurrencies(): List<CurrencyEntity>
+
+    @Transaction
+    suspend fun setCountriesNames(currenciesMap: Map<String,String>) {
+        currenciesMap.forEach { (currencyCode, currencyCountryName) ->
+            if (getCurrency(currencyCode) != null) {
+                setCountryName(currencyCode = currencyCode, currencyCountryName = currencyCountryName)
+            }
+        }
+    }
 
     @Transaction
     suspend fun save(currency: CurrencyEntity) {

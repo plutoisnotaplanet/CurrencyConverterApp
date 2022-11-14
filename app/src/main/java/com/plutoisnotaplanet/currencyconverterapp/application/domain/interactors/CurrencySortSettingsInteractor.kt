@@ -23,7 +23,7 @@ class CurrencySortSettingsInteractor @Inject constructor(
         currency: CurrencyViewItem
     ): Response<Unit> {
         return runResulting {
-            currencySortSettingsRepository.updateSelectedCurrency(listType, currency.name)
+            currencySortSettingsRepository.updateSelectedCurrency(listType, currency.code)
         }
     }
 }
