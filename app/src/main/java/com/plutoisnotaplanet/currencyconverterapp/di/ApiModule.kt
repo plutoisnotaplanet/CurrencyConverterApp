@@ -4,7 +4,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.plutoisnotaplanet.currencyconverterapp.application.Constants
 import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.Api
-import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.converter.CurrencyDeserializer
+import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.converter.CurrencyRateDeserializer
 import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.dto.RatesResponse
 import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.interceptors.QueryInterceptor
 import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.interceptors.ResponseInterceptor
@@ -54,7 +54,7 @@ object ApiModule {
         val gsonBuilder = GsonBuilder()
 
         val type = object : TypeToken<RatesResponse>() {}.type
-        gsonBuilder.registerTypeAdapter(type, CurrencyDeserializer())
+        gsonBuilder.registerTypeAdapter(type, CurrencyRateDeserializer())
 
         val gson = gsonBuilder.create()
         return GsonConverterFactory.create(gson)

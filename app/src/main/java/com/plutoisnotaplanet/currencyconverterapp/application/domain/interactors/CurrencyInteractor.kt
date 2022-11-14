@@ -36,12 +36,11 @@ class CurrencyInteractor @Inject constructor(
                 var resultList = currencies
 
                 if (activeSortSettings.isCurrencyNotDefault) {
-                    Timber.d("Sorting by ${activeSortSettings.selectedCurrency}")
+                    Timber.e("selected ${activeSortSettings.selectedCurrency}")
                     resultList = resultList.map { currency ->
                         Currency(
                             name = currency.name,
                             rate = CurrencyConversion.convertCurrency(
-                                amount = BigDecimal.ONE,
                                 fromRate = activeSortSettings.selectedCurrency.rate,
                                 toRate = currency.rate
                             ),
@@ -64,15 +63,17 @@ class CurrencyInteractor @Inject constructor(
                     }
                 }
 
+                val finalList = resultList.map { it.toCurrencyViewItem(activeSortSettings.selectedCurrency.name) }
+
                 if (listType.isPopular) {
                     CurrencyScreenUiState.Success(
                         sortSettings = popularSortSettings,
-                        currenciesList = resultList
+                        currenciesList = finalList
                     ).takeIf { resultList.isNotEmpty() } ?: CurrencyScreenUiState.Error("No currencies found")
                 } else {
                     CurrencyScreenUiState.Success(
                         sortSettings = favoriteSortSettings,
-                        currenciesList = resultList
+                        currenciesList = finalList
                     ).takeIf { resultList.isNotEmpty() } ?: CurrencyScreenUiState.Error("Favorites is not found")
                 }
             }.flowOn(Dispatchers.IO)
@@ -85,9 +86,9 @@ class CurrencyInteractor @Inject constructor(
         }
     }
 
-    override suspend fun changeFavoriteCurrencyState(currency: Currency): Response<Unit> {
+    override suspend fun changeFavoriteCurrencyState(currency: CurrencyViewItem): Response<Unit> {
         return runResulting {
-            currencyRepository.changeCurrencyFavoriteState(currency)
+            currencyRepository.changeCurrencyFavoriteState(currency.name, currency.isFavorite)
         }
     }
 

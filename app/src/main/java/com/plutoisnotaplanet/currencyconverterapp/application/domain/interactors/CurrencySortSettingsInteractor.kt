@@ -20,7 +20,7 @@ class CurrencySortSettingsInteractor @Inject constructor(
 
     override suspend fun updateSelectedCurrency(
         listType: CurrencyListType,
-        currency: Currency
+        currency: CurrencyViewItem
     ): Response<Unit> {
         return runResulting {
             currencySortSettingsRepository.updateSelectedCurrency(listType, currency.name)

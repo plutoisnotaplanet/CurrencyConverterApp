@@ -119,14 +119,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun setSelectedCurrency(listType: CurrencyListType, currency: Currency) {
+    private fun setSelectedCurrency(listType: CurrencyListType, currency: CurrencyViewItem) {
         viewModelScope.launchOnIo {
             currencySortSettingsUseCase.updateSelectedCurrency(listType, currency)
                 .onFailure { showSnackbar(resMessage = R.string.error_on_select_base_currency) }
         }
     }
 
-    private fun changeFavoriteCurrencyState(currency: Currency) {
+    private fun changeFavoriteCurrencyState(currency: CurrencyViewItem) {
         viewModelScope.launchOnIo {
             currencyUseCase.changeFavoriteCurrencyState(currency)
                 .onFailure { showSnackbar(resMessage = R.string.error_on_select_favorite_currency) }

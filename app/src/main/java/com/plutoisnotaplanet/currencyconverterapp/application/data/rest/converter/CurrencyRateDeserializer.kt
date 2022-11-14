@@ -7,7 +7,7 @@ import com.plutoisnotaplanet.currencyconverterapp.application.data.db.entitites.
 import com.plutoisnotaplanet.currencyconverterapp.application.data.rest.dto.RatesResponse
 import java.lang.reflect.Type
 
-class CurrencyDeserializer: JsonDeserializer<RatesResponse> {
+class CurrencyRateDeserializer: JsonDeserializer<RatesResponse> {
     override fun deserialize(
         json: JsonElement?,
         typeOfT: Type?,

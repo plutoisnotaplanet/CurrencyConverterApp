@@ -2,6 +2,7 @@ package com.plutoisnotaplanet.currencyconverterapp.ui.home_scope.currency_list
 
 import androidx.compose.runtime.Stable
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
+import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.SortBy
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.SortSettings
 
@@ -14,7 +15,7 @@ sealed class CurrencyScreenUiState {
 
     data class Success(
         val sortSettings: SortSettings,
-        val currenciesList: List<Currency>
+        val currenciesList: List<CurrencyViewItem>
     ) : CurrencyScreenUiState()
 
     fun getSortSettingsIfExist(): SortSettings {

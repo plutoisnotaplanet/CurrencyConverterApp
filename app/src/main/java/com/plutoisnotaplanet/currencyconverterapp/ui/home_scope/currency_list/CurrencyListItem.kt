@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.plutoisnotaplanet.currencyconverterapp.R
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.Currency
 import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyListType
+import com.plutoisnotaplanet.currencyconverterapp.application.domain.model.CurrencyViewItem
 import com.plutoisnotaplanet.currencyconverterapp.application.utils.ResourceUtil.painterResourceByName
 import com.plutoisnotaplanet.currencyconverterapp.ui.components.*
 import com.plutoisnotaplanet.currencyconverterapp.ui.theme.light_primary
@@ -32,7 +33,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun CurrencyListItem(
     modifier: Modifier = Modifier,
-    item: Currency = Currency("USD", 24.4, true),
+    item: CurrencyViewItem = CurrencyViewItem("USD", "24.4", true),
     selectedCurrencyName: String = "USD",
     currentListType: CurrencyListType = CurrencyListType.POPULAR,
     onAction: (CurrencyScreenAction) -> Unit = {}
@@ -127,7 +128,7 @@ fun CurrencyListItem(
                 value = stringResource(
                     id = R.string.tv_for_base_currency_this_rate,
                     selectedCurrencyName,
-                    item.rate.toString().take(7),
+                    item.rate,
                     item.name
                 ),
                 valueTextColor = commonTextColor,

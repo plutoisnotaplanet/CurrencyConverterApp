@@ -26,8 +26,8 @@ class CurrencyRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun changeCurrencyFavoriteState(currency: Currency) {
-        currencyDao.updateFavorState(currency.name, !currency.isFavorite)
+    override suspend fun changeCurrencyFavoriteState(currencyCode: String, isFavorite: Boolean) {
+        currencyDao.updateFavorState(currencyCode, !isFavorite)
     }
 
     override suspend fun updateCurrencies() {

@@ -1,22 +1,21 @@
 package com.plutoisnotaplanet.currencyconverterapp.application.utils
 
 import java.math.BigDecimal
+import java.math.MathContext
 import java.math.RoundingMode
-import java.text.DecimalFormat
 
 object CurrencyConversion {
 
-    fun convertCurrency(amount: BigDecimal, fromRate: Double, toRate: Double): Double {
-        val valueInDollars = convertAnyCurrencyToDollar(amount, fromRate)
-        return convertDollarToAnyCurrency(valueInDollars, toRate).toDouble()
+    fun convertCurrency(fromRate: BigDecimal, toRate: BigDecimal): BigDecimal {
+        val rateForOneDollar = convertAnyCurrencyToDollar(fromRate)
+        return convertDollarToAnyCurrency(rateForOneDollar, toRate)
     }
 
-    private fun convertAnyCurrencyToDollar(amount: BigDecimal, fromRate: Double): BigDecimal {
-        val scale = 50
-        return amount.divide(BigDecimal.valueOf(fromRate), scale, RoundingMode.HALF_UP)
+    private fun convertAnyCurrencyToDollar(fromRate: BigDecimal): BigDecimal {
+        return BigDecimal.ONE.divide(fromRate, MathContext.DECIMAL128)
     }
 
-    private fun convertDollarToAnyCurrency(dollarValue: BigDecimal, toRate: Double): BigDecimal {
-        return dollarValue.multiply(BigDecimal.valueOf(toRate))
+    private fun convertDollarToAnyCurrency(dollarValue: BigDecimal, toRate: BigDecimal): BigDecimal {
+        return toRate.divide(dollarValue, MathContext.DECIMAL128)
     }
 }
