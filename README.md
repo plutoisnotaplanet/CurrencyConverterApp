@@ -5,7 +5,7 @@ Currency conversion app using live exchange rates.
 https://openexchangerates.org/
 
 ### Architecture
-This app implements the MVVM architectural pattern using a single activity with jetpack compose and data-caching using a repository to fetch local or remote data. 
+This app implements the Clean architectural pattern using a single activity with jetpack compose and data-caching using a repository to fetch local or remote data. 
 
 <img src="graphics/clean_android.png" width="700">
 
