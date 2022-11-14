@@ -119,7 +119,7 @@ class CurrencyInteractor @Inject constructor(
             sortSettings.sortByRate.isDescending -> {
                 currencies.sortedByDescending { it.rate }
             }
-            else -> currencies.sortedBy { it.countryName }
+            else -> currencies
         }
     }
 }
